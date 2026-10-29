@@ -103,4 +103,10 @@ png.addEventListener('click', () => {
   }
   canvas.toBlob(blob => download(blob, 'qrcode.png'), 'image/png');
 });
+// URLSearchParams decodes percent escapes once; treat the result only as text.
+const initialText = new URLSearchParams(window.location.search).get('text');
+if (initialText !== null) {
+  content.value = initialText;
+  document.getElementById('input-note').textContent = 'URL text may appear in browser history and hosting logs.';
+}
 generate();
