@@ -69,16 +69,32 @@ function download(blob, filename) {
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+function commitContent() {
+  const url = new URL(window.location.href);
+  if (content.value) url.searchParams.set('text', content.value);
+  else url.searchParams.delete('text');
+  if (url.href !== window.location.href) {
+    window.history.pushState(null, '', url);
+  }
+  generate();
+}
+
+function restoreContent() {
+  // URLSearchParams decodes percent escapes once; treat the result only as text.
+  content.value = new URLSearchParams(window.location.search).get('text') ?? '';
+  generate();
+}
+
 content.addEventListener('input', () => {
   // Disable stale downloads immediately while waiting for typing to pause.
   png.disabled = svg.disabled = true;
   clearTimeout(timer);
-  timer = setTimeout(generate, 180);
+  timer = setTimeout(commitContent, 180);
 });
-correction.addEventListener('change', generate);
+correction.addEventListener('change', commitContent);
 document.getElementById('clear').addEventListener('click', () => {
   content.value = '';
-  generate();
+  commitContent();
   content.focus();
 });
 svg.addEventListener('click', () => {
@@ -103,10 +119,5 @@ png.addEventListener('click', () => {
   }
   canvas.toBlob(blob => download(blob, 'qrcode.png'), 'image/png');
 });
-// URLSearchParams decodes percent escapes once; treat the result only as text.
-const initialText = new URLSearchParams(window.location.search).get('text');
-if (initialText !== null) {
-  content.value = initialText;
-  document.getElementById('input-note').textContent = 'URL text may appear in browser history and hosting logs.';
-}
-generate();
+window.addEventListener('popstate', restoreContent);
+restoreContent();

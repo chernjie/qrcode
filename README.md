@@ -36,9 +36,11 @@ console.log(url.href);
 
 Without `text`, the input starts empty. `?text=` also leaves it empty. If repeated, the first `text` value is used. A raw `+` in a query is decoded as a space; encode a literal plus as `%2B`. The same QR capacity limits apply to URL input. Browser and hosting URL length limits may restrict long links further.
 
+Editing content updates `text` in the address bar using `history.pushState` after a 180 ms typing pause, without reloading the page. Clearing content removes `text`. Other query parameters and the URL fragment are preserved. Back and Forward restore content and regenerate the QR code. Unchanged URLs do not add history entries.
+
 ### Security and privacy
 
-- Query strings are sent to the hosting service on the initial request and may appear in hosting logs, browser history, copied links, and link preview services. Do not use query parameters for passwords, tokens, or other secrets. Manually typed content is processed locally and is not added to the URL.
+- All entered text is saved in the URL and browser history. Query strings are sent to the hosting service when loading or reloading the URL and may appear in hosting logs, copied links, and link preview services. Do not enter passwords, tokens, or other secrets. Updating the URL with `pushState` itself does not make a network request.
 - A `no-referrer` policy prevents this page from sending its URL as a referrer on subsequent requests. It cannot hide the original query from the host or remove existing copies.
 - Input is assigned through the textarea's `value`, never interpreted as HTML or JavaScript. QR SVGs are built only from numeric module coordinates. A string such as `<script>…</script>` remains plain text.
 - The page encodes text without visiting or executing it. A QR code can still contain a phishing URL or dangerous scanner action; review the visible text and the scanner's destination before opening it. QR codes are not encrypted.
